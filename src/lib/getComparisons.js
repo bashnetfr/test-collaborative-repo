@@ -1,36 +1,27 @@
+import { getComparisons as engineGetComparisons } from './comparisons';
+
+const CATEGORY_MAP = {
+  food: 'food',
+  entertainment: 'entertainment',
+  tech: 'goods',
+  lifestyle: 'time',
+  travel: 'goods',
+  utilities: 'time',
+};
+
 /**
- * MOCK comparison engine — replace this with the real module later.
+ * Comparison engine — wraps the real module with the UI's expected signature.
  *
- * Signature: getComparisons(amount, frequency) -> Array<{ text, category }>
+ * Signature: getComparisons(amount, frequency, options?) -> Array<{ text, category }>
  * - amount: number (dollars)
  * - frequency: "one-time" | "monthly" | "yearly"
- * - returns: array of 4 comparison objects
+ * - options: { hourlyWage?: number, count?: number }
+ * - returns: array of comparison objects
  */
-export function getComparisons(amount, frequency) {
-  const monthly = frequency === 'monthly' ? amount
-    : frequency === 'yearly' ? amount / 12
-    : amount;
-
-  const yearly = frequency === 'yearly' ? amount
-    : frequency === 'monthly' ? amount * 12
-    : amount;
-
-  return [
-    {
-      text: `${Math.round(yearly / 5)} coffees per year`,
-      category: 'food',
-    },
-    {
-      text: `${Math.round(monthly / 15)} streaming subscriptions`,
-      category: 'entertainment',
-    },
-    {
-      text: `${Math.round(yearly / 250)} hours of work (at $250/day)`,
-      category: 'time',
-    },
-    {
-      text: `${(yearly / 600).toFixed(1)}% of a PS5 per year`,
-      category: 'goods',
-    },
-  ];
+export function getComparisons(amount, frequency, options = {}) {
+  const results = engineGetComparisons({ amount, frequency }, options);
+  return results.map((r) => ({
+    text: r.text,
+    category: CATEGORY_MAP[r.referenceItem.category] || 'time',
+  }));
 }
